@@ -1,13 +1,14 @@
-﻿import pygame
+﻿from PySide6.QtGui import QPixmap
+from PySide6.QtCore import Qt
 import os
-import io
-import cairosvg
+
 
 PIECE_FILES = {
-    "br": "bR.svg", "bn": "bN.svg", "bb": "bB.svg", "bq": "bQ.svg", "bk": "bK.svg", "bp": "bP.svg",
-    "wr": "wR.svg", "wn": "wN.svg", "wb": "wB.svg", "wq": "wQ.svg", "wk": "wK.svg", "wp": "wP.svg"
+    "br": "br.png", "bn": "bn.png", "bb": "bb.png", "bq": "bq.png", "bk": "bk.png", "bp": "bp.png",
+    "wr": "wr.png", "wn": "wn.png", "wb": "wb.png", "wq": "wq.png", "wk": "wk.png", "wp": "wp.png"
 }
-PIECE_PATH = "/Users/ahmedhajhassine/Desktop/Datateknik/projects/chess/chess/data/lila-master/public/piece/alpha"
+
+PIECE_PATH = "/Users/ahmedhajhassine/Desktop/Datateknik/projects/chess/chess/piece/monarchy"
 
 class Piece:
     def __init__(self, code, size):
@@ -29,10 +30,20 @@ class Piece:
         return mapping.get(char, "unknown")
 
     def load_surface(self):
-        filename = PIECE_FILES[self.code]
+        filename = PIECE_FILES.get(self.code)
+        if not filename:
+            print("No filename for code:", self.code)
+            return QPixmap()
+
         path = os.path.join(PIECE_PATH, filename)
-        png_data = cairosvg.svg2png(url=path, output_width=self.size, output_height=self.size)
-        return pygame.image.load(io.BytesIO(png_data)).convert_alpha()
+        if not os.path.exists(path):
+            print("File not found:", path)
+            return QPixmap()
+
+
+        pixmap = QPixmap(path).scaled(self.size, self.size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        
+        return pixmap
 
     def resize(self, new_size):
         self.size = new_size
